@@ -172,6 +172,7 @@ function pmproum_getPluginAPIObjectFromAddon( $addon ) {
 	$api->tested                = isset( $addon['Tested'] ) ? $addon['Tested'] : '';
 	$api->last_updated          = isset( $addon['LastUpdated'] ) ? $addon['LastUpdated'] : '';
 	$api->homepage              = isset( $addon['URI'] ) ? $addon['URI'] : '';
+	// It is against the current wp.org guidelines to override these download locations, but we are okay doing this in our own plugin hosted elsewhere.
 	$api->download_link         = isset( $addon['Download'] ) ? $addon['Download'] : '';
 	$api->package               = isset( $addon['Download'] ) ? $addon['Download'] : '';
 
