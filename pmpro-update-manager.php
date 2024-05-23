@@ -80,11 +80,11 @@ function pmproum_update_plugins_filter( $value ) {
 
 		// Compare versions
 		if ( version_compare( $plugin_data['Version'], $addon['Version'], '<' ) ) {
-			$value->response[ $plugin_file ] = pmpro_getPluginAPIObjectFromAddon( $addon );
+			$value->response[ $plugin_file ] = pmproum_getPluginAPIObjectFromAddon( $addon );
 			$value->response[ $plugin_file ]->new_version = $addon['Version'];
 			$value->response[ $plugin_file ]->icons = array( 'default' => esc_url( pmpro_get_addon_icon( $addon['Slug'] ) ) );
 		} else {
-			$value->no_update[ $plugin_file ] = pmpro_getPluginAPIObjectFromAddon( $addon );
+			$value->no_update[ $plugin_file ] = pmproum_getPluginAPIObjectFromAddon( $addon );
 		}
 	}
 
@@ -140,7 +140,7 @@ function pmproum_plugins_api( $api, $action = '', $args = null ) {
 	}
 
 	// Create a new stdClass object and populate it with our plugin information.
-	$api = pmpro_getPluginAPIObjectFromAddon( $addon );
+	$api = pmproum_getPluginAPIObjectFromAddon( $addon );
 	return $api;
 }
 
