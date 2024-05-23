@@ -33,7 +33,6 @@ function pmproum_setupAddonUpdateInfo() {
 	add_filter( 'plugins_api', 'pmproum_plugins_api', 10, 3 );
 	add_filter( 'pre_set_site_transient_update_plugins', 'pmproum_update_plugins_filter' );
 	add_filter( 'http_request_args', 'pmproum_http_request_args_for_addons', 10, 2 );
-	add_action( 'update_option_pmpro_license_key', 'pmproum_reset_update_plugins_cache', 10, 2 );
 }
 add_action( 'init', 'pmproum_setupAddonUpdateInfo' );
 
@@ -85,11 +84,11 @@ function pmproum_update_plugins_filter( $value ) {
 
 		// Compare versions
 		if ( version_compare( $plugin_data['Version'], $addon['Version'], '<' ) ) {
-			$value->response[ $plugin_file ] = pmproum_getPluginAPIObjectFromAddon( $addon );
+			$value->response[ $plugin_file ] = pmpro_getPluginAPIObjectFromAddon( $addon );
 			$value->response[ $plugin_file ]->new_version = $addon['Version'];
 			$value->response[ $plugin_file ]->icons = array( 'default' => esc_url( pmpro_get_addon_icon( $addon['Slug'] ) ) );
 		} else {
-			$value->no_update[ $plugin_file ] = pmproum_getPluginAPIObjectFromAddon( $addon );
+			$value->no_update[ $plugin_file ] = pmpro_getPluginAPIObjectFromAddon( $addon );
 		}
 	}
 
@@ -145,7 +144,7 @@ function pmproum_plugins_api( $api, $action = '', $args = null ) {
 	}
 
 	// Create a new stdClass object and populate it with our plugin information.
-	$api = pmproum_getPluginAPIObjectFromAddon( $addon );
+	$api = pmpro_getPluginAPIObjectFromAddon( $addon );
 	return $api;
 }
 
