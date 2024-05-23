@@ -25,7 +25,12 @@ define( 'PMPROUM_VERSION', '0.1' );
  * @since 0.1
  */
 function pmproum_setupAddonUpdateInfo() {
-    add_filter( 'plugins_api', 'pmproum_plugins_api', 10, 3 );
+    // If PMPro < 3.1 is running, it will handle updates itself.
+	if ( defined( 'PMPRO_VERSION' ) && version_compare( PMPRO_VERSION, '3.1', '<' ) ) {
+		return;
+	}
+	
+	add_filter( 'plugins_api', 'pmproum_plugins_api', 10, 3 );
 	add_filter( 'pre_set_site_transient_update_plugins', 'pmproum_update_plugins_filter' );
 	add_filter( 'http_request_args', 'pmproum_http_request_args_for_addons', 10, 2 );
 	add_action( 'update_option_pmpro_license_key', 'pmproum_reset_update_plugins_cache', 10, 2 );
