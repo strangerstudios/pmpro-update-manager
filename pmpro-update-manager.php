@@ -1,13 +1,14 @@
 <?php
 /**
  * Plugin Name: Paid Memberships Pro - Update Manager
- * Plugin URI: https://www.paidmembershipspro.com/add-ons/pmpro-update-manager/
- * Description: Manage plugin updates for PMPro Add Ons.
+ * Plugin URI: https://www.paidmembershipspro.com/add-ons/update-manager/
+ * Description: Manage all Paid Memberships Pro ecosystem Add Ons downloads and updates.
  * Version: 0.1
  * Author: Paid Memberships Pro
  * Author URI: https://www.paidmembershipspro.com
  * Text Domain: pmpro-update-manager
  * Domain Path: /languages
+ * License: GPL-3.0
  */
 
 define( 'PMPROUM_BASE_FILE', __FILE__ );
