@@ -25,9 +25,12 @@ define( 'PMPROUM_VERSION', '0.1' );
  * @since 0.1
  */
 function pmproum_setupAddonUpdateInfo() {
-    // If PMPro < 3.1 is running, it will handle updates itself.
-	if ( defined( 'PMPRO_VERSION' ) && version_compare( PMPRO_VERSION, '3.1', '<' ) ) {
-		return;
+	if ( ! defined( 'PMPRO_LICENSE_SERVER' ) ) {
+		// PMPro must not be loaded. Define the license server.
+		define('PMPRO_LICENSE_SERVER', 'https://license.paidmembershipspro.com/v2/');
+
+		// And load some extra functions.
+		require_once( PMPROUM_DIR . '/includes/addons.php' );
 	}
 	
 	add_filter( 'plugins_api', 'pmproum_plugins_api', 10, 3 );
@@ -84,11 +87,13 @@ function pmproum_update_plugins_filter( $value ) {
 
 		// Compare versions
 		if ( version_compare( $plugin_data['Version'], $addon['Version'], '<' ) ) {
-			$value->response[ $plugin_file ] = pmproum_getPluginAPIObjectFromAddon( $addon );
+			$value->response[ $plugin_file ] = pmpro_getPluginAPIObjectFromAddon( $addon );
 			$value->response[ $plugin_file ]->new_version = $addon['Version'];
-			$value->response[ $plugin_file ]->icons = array( 'default' => esc_url( pmpro_get_addon_icon( $addon['Slug'] ) ) );
+			if ( function_exists( 'pmpro_get_addon_icon' ) ) {
+				$value->response[ $plugin_file ]->icons = array( 'default' => esc_url( pmpro_get_addon_icon( $addon['Slug'] ) ) );
+			}
 		} else {
-			$value->no_update[ $plugin_file ] = pmproum_getPluginAPIObjectFromAddon( $addon );
+			$value->no_update[ $plugin_file ] = pmpro_getPluginAPIObjectFromAddon( $addon );
 		}
 	}
 
@@ -144,70 +149,6 @@ function pmproum_plugins_api( $api, $action = '', $args = null ) {
 	}
 
 	// Create a new stdClass object and populate it with our plugin information.
-	$api = pmproum_getPluginAPIObjectFromAddon( $addon );
-	return $api;
-}
-
-/**
- * Convert the format from the pmpro_getAddons function to that needed for plugins_api
- *
- * @since  0.1
- */
-function pmproum_getPluginAPIObjectFromAddon( $addon ) {
-	$api                        = new stdClass();
-
-	if ( empty( $addon ) ) {
-		return $api;
-	}
-
-    // If PMPro is not active, bail.
-    if ( ! function_exists( 'pmpro_license_type_is_premium' ) ) {
-        return $api;
-    }
-
-	// add info
-	$api->name                  = isset( $addon['Name'] ) ? $addon['Name'] : '';
-	$api->slug                  = isset( $addon['Slug'] ) ? $addon['Slug'] : '';
-	$api->plugin                = isset( $addon['plugin'] ) ? $addon['plugin'] : '';
-	$api->version               = isset( $addon['Version'] ) ? $addon['Version'] : '';
-	$api->author                = isset( $addon['Author'] ) ? $addon['Author'] : '';
-	$api->author_profile        = isset( $addon['AuthorURI'] ) ? $addon['AuthorURI'] : '';
-	$api->requires              = isset( $addon['Requires'] ) ? $addon['Requires'] : '';
-	$api->tested                = isset( $addon['Tested'] ) ? $addon['Tested'] : '';
-	$api->last_updated          = isset( $addon['LastUpdated'] ) ? $addon['LastUpdated'] : '';
-	$api->homepage              = isset( $addon['URI'] ) ? $addon['URI'] : '';
-	// It is against the current wp.org guidelines to override these download locations, but we are okay doing this in our own plugin hosted elsewhere.
-	$api->download_link         = isset( $addon['Download'] ) ? $addon['Download'] : '';
-	$api->package               = isset( $addon['Download'] ) ? $addon['Download'] : '';
-
-	// add sections
-	if ( !empty( $addon['Description'] ) ) {
-		$api->sections['description'] = $addon['Description'];
-	}
-	if ( !empty( $addon['Installation'] ) ) {
-		$api->sections['installation'] = $addon['Installation'];
-	}
-	if ( !empty( $addon['FAQ'] ) ) {
-		$api->sections['faq'] = $addon['FAQ'];
-	}
-	if ( !empty( $addon['Changelog'] ) ) {
-		$api->sections['changelog'] = $addon['Changelog'];
-	}
-
-	// get license key if one is available
-	$key = get_option( 'pmpro_license_key', '' );
-	if ( ! empty( $key ) && ! empty( $api->download_link ) ) {
-		$api->download_link = add_query_arg( 'key', $key, $api->download_link );
-	}
-	if ( ! empty( $key ) && ! empty( $api->package ) ) {
-		$api->package = add_query_arg( 'key', $key, $api->package );
-	}
-	
-	if ( empty( $api->upgrade_notice ) && pmpro_license_type_is_premium( $addon['License'] ) ) {
-		if ( ! pmpro_license_isValid( null, $addon['License'] ) ) {
-			$api->upgrade_notice = sprintf( __( 'Important: This plugin requires a valid PMPro %s license key to update.', 'paid-memberships-pro' ), ucwords( $addon['License'] ) );
-		}
-	}	
-
+	$api = pmpro_getPluginAPIObjectFromAddon( $addon );
 	return $api;
 }
