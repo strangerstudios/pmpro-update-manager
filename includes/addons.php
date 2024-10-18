@@ -138,7 +138,8 @@ if ( ! function_exists( 'pmpro_getPluginAPIObjectFromAddon' ) ) {
         
         if ( empty( $api->upgrade_notice ) && pmpro_license_type_is_premium( $addon['License'] ) ) {
             if ( ! pmpro_license_isValid( null, $addon['License'] ) ) {
-                $api->upgrade_notice = sprintf( __( 'Important: This plugin requires a valid PMPro %s license key to update.', 'paid-memberships-pro' ), ucwords( $addon['License'] ) );
+                /* translators: %s is the license type */
+                $api->upgrade_notice = sprintf( __( 'Important: This plugin requires a valid PMPro %s license key to update.', 'pmpro-update-manager' ), ucwords( $addon['License'] ) );
             }
         }	
 

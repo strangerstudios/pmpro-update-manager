@@ -1,8 +1,8 @@
-=== Paid Memberships Pro - Update Manager Add On ===
+=== Paid Memberships Pro - Update Manager ===
 Contributors: strangerstudios
 Tags: paid memberships pro, pmpro, update manager, update, upgrade, Add Ons, plugins
 Requires at least: 5.4
-Tested up to: 6.5.3
+Tested up to: 6.6.2
 Stable tag: 0.1
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -11,7 +11,7 @@ Manage all Paid Memberships Pro ecosystem Add Ons downloads and updates.
 
 == Description ==
 
-This plugin 
+Manage all Paid Memberships Pro ecosystem Add Ons downloads and updates.
 
 == Installation ==
 
