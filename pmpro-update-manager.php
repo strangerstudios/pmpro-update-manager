@@ -25,19 +25,21 @@ define( 'PMPROUM_VERSION', '0.1' );
  * @since 0.1
  */
 function pmproum_setupAddonUpdateInfo() {
+	// Only load this stuff in the admin dashboard.
+	if ( ! is_admin() ) {
+		return;
+	}
+	
+	// Make sure we define the license server in case PMPro is not loaded.
 	if ( ! defined( 'PMPRO_LICENSE_SERVER' ) ) {
-		// PMPro must not be loaded. Define the license server.
 		define('PMPRO_LICENSE_SERVER', 'https://license.paidmembershipspro.com/v2/');
-
-		// And load some extra functions.
-		require_once( PMPROUM_DIR . '/includes/addons.php' );
 	}
 	
 	add_filter( 'plugins_api', 'pmproum_plugins_api', 10, 3 );
 	add_filter( 'pre_set_site_transient_update_plugins', 'pmproum_update_plugins_filter' );
 	add_filter( 'http_request_args', 'pmproum_http_request_args_for_addons', 10, 2 );
 }
-add_action( 'init', 'pmproum_setupAddonUpdateInfo' );
+add_action( 'init', 'pmproum_setupAddonUpdateInfo', 10 );
 
 /**
  * Infuse plugin update details when WordPress runs its update checker.
@@ -54,9 +56,9 @@ function pmproum_update_plugins_filter( $value ) {
 		return $value;
 	}
 
-    // If PMPro is not active, bail.
+    // If PMPro is not active, load some functions we need.
     if ( ! function_exists( 'pmpro_getAddons' ) ) {
-        return $value;
+		require_once( PMPROUM_DIR . '/includes/addons.php' );
     }
 
 	// Get Add On information
@@ -130,9 +132,9 @@ function pmproum_plugins_api( $api, $action = '', $args = null ) {
 		return $api;
 	}
 
-    // If PMPro is not active, bail.
+    // If PMPro is not active, load some functions we need.
     if ( ! function_exists( 'pmpro_getAddonBySlug' ) ) {
-        return $api;
+        require_once( PMPROUM_DIR . '/includes/addons.php' );
     }
 
 	// get addon information
