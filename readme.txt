@@ -27,3 +27,5 @@ Manage all Paid Memberships Pro ecosystem Add Ons downloads and updates.
 View full documentation at: https://www.paidmembershipspro.com/add-ons/update-manager/
 
 == Changelog ==
+= 0.1 - 2024-10-18 =
+* Initial release.
