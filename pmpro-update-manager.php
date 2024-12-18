@@ -20,6 +20,11 @@ define( 'PMPROUM_VERSION', '0.1' );
  * Some of the code in this library was borrowed from the TGM Updater class by Thomas Griffin. (https://github.com/thomasgriffin/TGM-Updater)
  */
 
+// Only include the GlotPress helper if it's not already included by PMPro core.
+if ( ! function_exists( 'PMPro\Required\Traduttore_Registry\add_project' ) ) {
+	include( PMPROUM_DIR . '/includes/glotpress-helper.php' );
+}
+
 /**
  * Setup plugins api filters
  *
@@ -154,4 +159,49 @@ function pmproum_plugins_api( $api, $action = '', $args = null ) {
 	// Create a new stdClass object and populate it with our plugin information.
 	$api = pmpro_getPluginAPIObjectFromAddon( $addon );
 	return $api;
+}
+
+/**
+ * Handle translation updates from our own translation server.
+ * @since TBD
+ */
+if ( ! function_exists( 'pmpro_check_for_translations' ) ) {
+	function pmpro_check_for_translations() {
+		// Run it only on a PMPro page in the admin.
+		if ( ! current_user_can( 'update_plugins' ) ) {
+			return;
+		}
+
+		// The pmpro_getAddOns function is missing.
+		if ( ! function_exists( 'pmpro_getAddOns' ) ) {
+			return;
+		}
+
+		$is_pmpro_admin = ! empty( $_REQUEST['page'] ) && strpos( $_REQUEST['page'], 'pmpro' ) !== false;
+		$is_update_or_plugins_page = strpos( $_SERVER['REQUEST_URI'], 'update-core.php' ) !== false || strpos( $_SERVER['REQUEST_URI'], 'plugins.php' ) !== false;
+
+		// Only run this check when we're in the PMPro Page or plugins/update page to save some resources.
+		if ( ! $is_pmpro_admin && ! $is_update_or_plugins_page ) {
+			return;
+		}
+
+		$pmpro_add_ons = pmpro_getAddOns();
+		foreach( $pmpro_add_ons as $add_on ) {
+			// Skip if the plugin isn't active.
+			if ( ! pmpro_is_plugin_active( $add_on['plugin'] ) ) {
+				continue;
+			}
+
+			$plugin_slug = $add_on['Slug'];
+
+			// This uses the Traduttore plugin to check for translations for locales etc.
+			PMPro\Required\Traduttore_Registry\add_project(
+				'plugin',
+				$plugin_slug,
+				'https://translate.strangerstudios.com/api/translations/' . $plugin_slug
+			);
+		}
+
+	}
+	add_action( 'admin_init', 'pmpro_check_for_translations' );
 }
