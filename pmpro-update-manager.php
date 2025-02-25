@@ -203,5 +203,5 @@ if ( ! function_exists( 'pmpro_check_for_translations' ) ) {
 		}
 
 	}
-	add_action( 'admin_init', 'pmpro_check_for_translations', 99 );
+	add_action( 'admin_init', 'pmpro_check_for_translations', 99 ); // PMPro core runs this on priority 10.
 }
