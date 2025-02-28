@@ -16,6 +16,10 @@ define( 'PMPROUM_BASENAME', plugin_basename( __FILE__ ) );
 define( 'PMPROUM_DIR', dirname( __FILE__ ) );
 define( 'PMPROUM_VERSION', '0.1' );
 
+
+// Include the themes update manager.
+require_once( PMPROUM_DIR . '/includes/theme-update-manager.php' );
+
 /**
  * Some of the code in this library was borrowed from the TGM Updater class by Thomas Griffin. (https://github.com/thomasgriffin/TGM-Updater)
  */
