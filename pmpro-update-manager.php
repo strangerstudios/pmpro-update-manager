@@ -163,45 +163,70 @@ function pmproum_plugins_api( $api, $action = '', $args = null ) {
 
 /**
  * Handle translation updates from our own translation server.
+ * Note: This only needs to run when products are active, to save server resources.
  * @since TBD
  */
-if ( ! function_exists( 'pmpro_check_for_translations' ) ) {
-	function pmpro_check_for_translations() {
-		// Run it only on a PMPro page in the admin.
-		if ( ! current_user_can( 'update_plugins' ) ) {
-			return;
+function pmproum_check_for_translations() {
+
+	// Unhook any product we know that is loading translations, for now it's only PMPro Core and Memberlite.
+	remove_action( 'admin_init', 'pmpro_check_for_translations', 10 );
+	remove_action( 'admin_init', 'memberlite_check_for_translations', 10 );
+
+	// Run it only on a PMPro page in the admin.
+	if ( ! current_user_can( 'update_plugins' ) ) {
+		return;
+	}
+
+	// If the pmpro_getAddOns doesn't exist, let's run it locally.
+	if ( ! function_exists( 'pmpro_getAddOns' ) ) {
+		require_once( PMPROUM_DIR . '/includes/addons.php' );
+	}
+
+	// Only run this check when we're in the PMPro Page or plugins/update page to save some resources.
+	$is_pmpro_admin = ! empty( $_REQUEST['page'] ) && strpos( $_REQUEST['page'], 'pmpro' ) !== false;
+	$is_update_or_plugins_page = strpos( $_SERVER['REQUEST_URI'], 'update-core.php' ) !== false || strpos( $_SERVER['REQUEST_URI'], 'plugins.php' ) !== false;
+	if ( ! $is_pmpro_admin && ! $is_update_or_plugins_page ) {
+		return;
+	}
+
+	// Get our themes and Add Ons.
+	$pmpro_add_ons = pmpro_getAddOns();
+	$pmpro_themes = pmproum_get_themes();
+
+	// Join the themes and Add On JSON into a products array so we can loop through and get active products to update translations for.
+	$pmpro_products = array_merge( $pmpro_add_ons, $pmpro_themes );
+
+	// Loop through all active products and see if they have translations available.
+	foreach( $pmpro_products as $product ) {
+
+		// Figure out if we're looking for a theme or plugin.
+		$product_type = isset( $product['plugin'] ) ? 'plugin' : 'theme';
+
+		// If the product is a plugin, let's check to see if it exists in the WordPress install.
+		if ( $product_type === 'plugin' && ! in_array( $product['plugin'], (array) get_option( 'active_plugins', array() ) ) ) {
+			continue;
 		}
-
-		// The pmpro_getAddOns function is missing.
-		if ( ! function_exists( 'pmpro_getAddOns' ) ) {
-			return;
-		}
-
-		$is_pmpro_admin = ! empty( $_REQUEST['page'] ) && strpos( $_REQUEST['page'], 'pmpro' ) !== false;
-		$is_update_or_plugins_page = strpos( $_SERVER['REQUEST_URI'], 'update-core.php' ) !== false || strpos( $_SERVER['REQUEST_URI'], 'plugins.php' ) !== false;
-
-		// Only run this check when we're in the PMPro Page or plugins/update page to save some resources.
-		if ( ! $is_pmpro_admin && ! $is_update_or_plugins_page ) {
-			return;
-		}
-
-		$pmpro_add_ons = pmpro_getAddOns();
-		foreach( $pmpro_add_ons as $add_on ) {
-			// Skip if the plugin isn't active.
-			if ( ! pmpro_is_plugin_active( $add_on['plugin'] ) ) {
+		
+		// Check if the theme exists and active, if not, skip it.
+		if ( $product_type === 'theme' ) {
+			$theme = wp_get_theme();
+			
+			// Get active theme slug and compare to the slug of the JSON, if it's not the same let's bail.
+			if ( is_wp_error( $theme ) || $theme->get_template() !== $product['Slug'] ) {
 				continue;
 			}
-
-			$plugin_slug = $add_on['Slug'];
-
-			// This uses the Traduttore plugin to check for translations for locales etc.
-			PMPro\Required\Traduttore_Registry\add_project(
-				'plugin',
-				$plugin_slug,
-				'https://translate.strangerstudios.com/api/translations/' . $plugin_slug
-			);
 		}
 
+		// Get the product slug so we can pass it to Traduttore.
+		$product_slug = $product['Slug'];
+
+		// This uses the Traduttore plugin to check for translations for locales etc.
+		PMProUM\Required\Traduttore_Registry\add_project(
+			$product_type,
+			$product_slug,
+			'https://translate.strangerstudios.com/api/translations/' . $product_slug
+		);
 	}
-	add_action( 'admin_init', 'pmpro_check_for_translations', 99 ); // PMPro core runs this on priority 10.
+
 }
+add_action( 'admin_init', 'pmproum_check_for_translations', 99 ); // PMPro core runs this on priority 10.
