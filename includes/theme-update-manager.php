@@ -26,7 +26,7 @@ function pmproum_get_themes() {
 
 	// Query the server if we do not have the local $update_info or we force checking for an update.
 	if ( empty( $update_info ) || ! empty( $_REQUEST['force-check'] ) || current_time('timestamp') > $update_info_timestamp + 86400 ) {
-		/**
+        /**
          * Filter to change the timeout for this wp_remote_get() request for updates.
          * @since TBD
          * @param int $timeout The number of seconds before the request times out
