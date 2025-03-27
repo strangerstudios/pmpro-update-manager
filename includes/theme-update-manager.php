@@ -19,7 +19,7 @@ add_action( 'admin_init', 'pmproum_theme_setup_update_info', 99 );
  * Get theme update information from the PMPro server.
  * @since  TBD
  */
-function pmproum_theme_get_update_info() {
+function pmproum_get_themes() {
 	// Check if forcing a pull from the server.
 	$update_info = get_option( 'pmproum_theme_update_info', false );
 	$update_info_timestamp = get_option( 'pmproum_theme_update_info_timestamp', 0 );
@@ -31,7 +31,7 @@ function pmproum_theme_get_update_info() {
          * @since TBD
          * @param int $timeout The number of seconds before the request times out
          */
-        $timeout = apply_filters( 'pmproum_theme_get_update_info_timeout', 5 );
+        $timeout = apply_filters( 'pmproum_get_themes_timeout', 5 );
         $remote_info = wp_remote_get( PMPRO_LICENSE_SERVER . 'themes/', $timeout );
 
 		// Test response.
@@ -67,55 +67,32 @@ function pmproum_update_themes_filter( $value ) {
 	}
 
 	// Get the update JSON for Stranger Studios themes
-	$update_info = pmproum_theme_get_update_info();
+	$update_info = pmproum_get_themes();
 
 	// No info found, let's bail.
 	if ( empty( $update_info ) ) {
 		return $value;
 	}
 
-    // Get our themes and figure out if we need to try and serve an update.
-	/**
-	 * Filter to add themes to the list of themes that should be updated. (Useful to let themes use update code without the need of bundling it in.)
-	 * @since TBD
-	 * @param array $themes An array of theme slugs that should be updated.
-	 */
-    $our_themes = apply_filters( 'pmproum_owned_themes', array( 'memberlite' ) );
+	// Loop through the $update_info array to see if the theme exists, and if it does let's try serve an update. This saves some API calls to our license server.
+	foreach ( $update_info as $theme_info ) {
+		if ( ! empty( $theme_info['Slug'] ) ) {
+
+			$theme_exists = wp_get_theme( $theme_info['Slug'] );
+
+			if ( ! is_wp_error( $theme_exists ) ) {
+				// Compare versions and build the response array for each of our themes.
+				if ( version_compare( $theme_exists['Version'], $theme_info['Version'], '<' ) ) {
+					$value->response[$theme_info['Slug']] = array(
+						'theme' => $theme_info['Slug'],
+						'new_version' => $theme_info['Version'],
+						'url' => $theme_info['ThemeURI'],
+						'package' => $theme_info['Download']
+					);
+				}
+			}
+		}
     
-	// Used to build an array of data to return to the transients
-    $theme_update_info = array();
-
-    // Loop through $our_themes to see if we need to serve an update.
-    foreach ( $our_themes as $theme_slug ) {
-
-		// Get data for the theme and make sure it is found in WordPress.
-        $theme_data = wp_get_theme( $theme_slug );
-
-		// If the theme is not found, skip it.
-        if ( is_wp_error( $theme_data ) ) {
-            continue;
-        }
-
-        // Find the theme update data in the update info array.
-        $find_theme = array_search( $theme_slug, array_column( $update_info, 'Slug' ) );
-
-        // If the theme update data is found, adjust $update_info to be specifically for memberlite.
-        if ( $find_theme !== false ) {
-            $theme_update_info = $update_info[$find_theme];
-        } else {
-            continue;
-        }   
-
-        // Compare versions and build the response array for each of our themes.
-        if ( ! empty( $theme_update_info['License'] ) && version_compare( $theme_data['Version'], $theme_update_info['Version'], '<' ) ){
-            $value->response[$theme_update_info['Slug']] = array(
-                'theme' => $theme_update_info['Slug'],
-                'new_version' => $theme_update_info['Version'],
-                'url' => $theme_update_info['ThemeURI'],
-                'package' => $theme_update_info['Download']
-            );
-        }
     }
-
     return $value;
 }
