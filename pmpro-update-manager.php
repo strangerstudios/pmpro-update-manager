@@ -225,7 +225,7 @@ function pmproum_check_for_translations() {
 		$product_slug = $product['Slug'];
 
 		// This uses the Traduttore plugin to check for translations for locales etc.
-		PMProUM\Required\Traduttore_Registry\add_project(
+		PMPro\Required\Traduttore_Registry\add_project(
 			$product_type,
 			$product_slug,
 			'https://translate.strangerstudios.com/api/translations/' . $product_slug
