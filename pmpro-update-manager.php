@@ -16,18 +16,14 @@ define( 'PMPROUM_BASENAME', plugin_basename( __FILE__ ) );
 define( 'PMPROUM_DIR', dirname( __FILE__ ) );
 define( 'PMPROUM_VERSION', '0.1' );
 
-
-// Include the themes update manager.
+// Includes
 require_once( PMPROUM_DIR . '/includes/theme-update-manager.php' );
+require_once( PMPROUM_DIR . '/includes/glotpress-helper.php' );
 
 /**
  * Some of the code in this library was borrowed from the TGM Updater class by Thomas Griffin. (https://github.com/thomasgriffin/TGM-Updater)
  */
 
-// Only include the GlotPress helper if it's not already included by PMPro core.
-if ( ! function_exists( 'PMPro\Required\Traduttore_Registry\add_project' ) ) {
-	include( PMPROUM_DIR . '/includes/glotpress-helper.php' );
-}
 
 /**
  * Setup plugins api filters
@@ -233,4 +229,4 @@ function pmproum_check_for_translations() {
 	}
 
 }
-add_action( 'admin_init', 'pmproum_check_for_translations', 99 ); // PMPro core runs this on priority 10.
+add_action( 'admin_init', 'pmproum_check_for_translations', 5 ); // PMPro core runs this on priority 10.
