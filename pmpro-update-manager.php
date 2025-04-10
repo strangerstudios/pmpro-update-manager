@@ -233,4 +233,4 @@ function pmproum_check_for_translations() {
 	}
 
 }
-add_action( 'admin_init', 'pmproum_check_for_translations', 99 ); // PMPro core runs this on priority 10.
+add_action( 'admin_init', 'pmproum_check_for_translations', 5 ); // PMPro core runs this on priority 10.
