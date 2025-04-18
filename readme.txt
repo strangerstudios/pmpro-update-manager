@@ -7,11 +7,11 @@ Stable tag: 0.2
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
-Manage all Paid Memberships Pro ecosystem Add Ons downloads and updates.
+Manage downloads and updates for all official Paid Memberships Pro Add Ons, themes, and translation files.
 
 == Description ==
 
-Manage all Paid Memberships Pro ecosystem Add Ons downloads and updates.
+Manage downloads and updates for all official Paid Memberships Pro Add Ons, themes, and translation files.
 
 == Installation ==
 

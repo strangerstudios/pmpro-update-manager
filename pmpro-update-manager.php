@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Paid Memberships Pro - Update Manager
  * Plugin URI: https://www.paidmembershipspro.com/add-ons/update-manager/
- * Description: Manage all Paid Memberships Pro ecosystem Add Ons downloads and updates.
+ * Description: Manage downloads and updates for all official Paid Memberships Pro Add Ons, themes, and translation files.
  * Version: 0.2
  * Author: Paid Memberships Pro
  * Author URI: https://www.paidmembershipspro.com
