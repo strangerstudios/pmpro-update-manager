@@ -27,7 +27,7 @@ Manage downloads and updates for all official Paid Memberships Pro Add Ons, them
 View full documentation at: https://www.paidmembershipspro.com/add-ons/update-manager/
 
 == Changelog ==
-= 0.2 - 2025-04-18 =
+= 0.2 - 2025-04-21 =
 * FEATURE: Added support for downloading and updating Themes from the Stranger Studios servers, e.g. Memberlite.
 * FEATURE: Added support for downloading and updating translations from the translate.strangerstudios.com.
 * BUG FIX: Fixed fatal errors caused when the Update Manager and PMPro core both were trying to load the same functions.
