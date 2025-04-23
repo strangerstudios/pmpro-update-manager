@@ -80,7 +80,7 @@ function pmproum_update_themes_filter( $value ) {
 
 			$theme_exists = wp_get_theme( $theme_info['Slug'] );
 
-			// Make sure the theme exists and that an update is available.
+			// Make sure the theme exists before we try to see if an update is needed.
 			if ( $theme_exists->exists() ) {
 				// Compare versions and build the response array for each of our themes.
 				if ( version_compare( $theme_exists['Version'], $theme_info['Version'], '<' ) ) {
