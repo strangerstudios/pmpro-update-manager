@@ -3,7 +3,7 @@
 
 /**
  * Setup themes api filters
- * @since TBD
+ * @since 0.2
 */
 function pmproum_theme_setup_update_info() {
 
@@ -17,7 +17,7 @@ add_action( 'admin_init', 'pmproum_theme_setup_update_info', 99 );
 
 /**
  * Get theme update information from the PMPro server.
- * @since  TBD
+ * @since  0.2
  */
 function pmproum_get_themes() {
 	// Check if forcing a pull from the server.
@@ -28,7 +28,7 @@ function pmproum_get_themes() {
 	if ( empty( $update_info ) || ! empty( $_REQUEST['force-check'] ) || current_time('timestamp') > $update_info_timestamp + 86400 ) {
         /**
          * Filter to change the timeout for this wp_remote_get() request for updates.
-         * @since TBD
+         * @since 0.2
          * @param int $timeout The number of seconds before the request times out
          */
         $timeout = apply_filters( 'pmproum_get_themes_timeout', 5 );
@@ -55,7 +55,7 @@ function pmproum_get_themes() {
 
 /**
 * Infuse theme update details when WordPress runs its update checker.
-* @since TBD
+* @since 0.2
 * @param object $value  The WordPress update object.
 * @return object $value Amended WordPress update object on success, default if object is empty.
 */
@@ -80,7 +80,8 @@ function pmproum_update_themes_filter( $value ) {
 
 			$theme_exists = wp_get_theme( $theme_info['Slug'] );
 
-			if ( ! is_wp_error( $theme_exists ) ) {
+			// Make sure the theme exists and that an update is available.
+			if ( $theme_exists->exists() ) {
 				// Compare versions and build the response array for each of our themes.
 				if ( version_compare( $theme_exists['Version'], $theme_info['Version'], '<' ) ) {
 					$value->response[$theme_info['Slug']] = array(
