@@ -230,3 +230,18 @@ function pmproum_check_for_translations() {
 
 }
 add_action( 'admin_init', 'pmproum_check_for_translations', 5 ); // PMPro core runs this on priority 10.
+
+/**
+ * Function to add links to the plugin row meta
+ */
+function pmproum_plugin_row_meta( $links, $file ) {
+	if ( strpos( $file, 'pmpro-update-manager.php' ) !== false ) {
+		$new_links = array(
+			'<a href="' . esc_url( 'https://www.paidmembershipspro.com/add-ons/update-manager/' ) . '" title="' . esc_attr( __( 'View Documentation', 'pmpro-update-manager' ) ) . '">' . __( 'Docs', 'pmpro-update-manager' ) . '</a>',
+			'<a href="' . esc_url( 'https://www.paidmembershipspro.com/support/' ) . '" title="' . esc_attr( __( 'Visit Customer Support Forum', 'pmpro-update-manager' ) ) . '">' . __( 'Support', 'pmpro-update-manager' ) . '</a>',
+		);
+		$links     = array_merge( $links, $new_links );
+	}
+	return $links;
+}
+add_filter( 'plugin_row_meta', 'pmproum_plugin_row_meta', 10, 2 );
