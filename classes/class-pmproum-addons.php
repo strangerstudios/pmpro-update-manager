@@ -56,7 +56,7 @@ class PMProUM_AddOns {
 	 *
 	 * @access public
 	 * @since TBD
-	 * @return PMPro_AddOns
+	 * @return PMProUM_AddOns
 	 */
 	public static function instance() {
 		if ( null === self::$instance ) {
