@@ -1,8 +1,12 @@
 <?php
 
 // This is a renamed copy of the PMPro_AddOns class from Paid Memberships Pro.
-// The one other change that needs to be made when updating this file is commenting out the following line in update_plugins_filter():
+
+// One change that needs to be made when updating this file is commenting out the following line in update_plugins_filter():
 // $value->response[ $plugin_file ]->icons       = array( 'default' => esc_url( $this->get_addon_icon( $addon['Slug'] ) ) );
+
+// The hook for `update_plugins_filter` should also be set to priority 9 so it runs before the PMPro_AddOns version at priority 10.
+// The PMPro version can set Add On images, but this class does not have access to images. Let core PMPro override this one.
 
 defined( 'ABSPATH' ) || die( 'File cannot be accessed directly' );
 
@@ -95,7 +99,7 @@ class PMProUM_AddOns {
 	public function admin_hooks() {
 		$this->check_when_updating_plugins();
 		add_filter( 'plugins_api', array( $this, 'plugins_api' ), 10, 3 );
-		add_filter( 'pre_set_site_transient_update_plugins', array( $this, 'update_plugins_filter' ) );
+		add_filter( 'pre_set_site_transient_update_plugins', array( $this, 'update_plugins_filter' ), 9 );
 		add_filter( 'http_request_args', array( $this, 'http_request_args_for_addons' ), 10, 2 );
 		add_action( 'update_option_pmpro_license_key', array( $this, 'reset_update_plugins_cache' ), 10, 2 );
 		// Register AJAX endpoints for add-on actions.
