@@ -195,11 +195,17 @@ function pmproum_check_for_translations() {
 
 	// Make sure PMPro Add Ons data is returned.
 	if ( ! is_array( $pmpro_add_ons ) ) {
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			error_log( 'There was a problem retrieving PMPro Add Ons update data.' );
+		}
 		$pmpro_add_ons = array();
 	}
 
 	// Make sure it's an array, if not, set to empty array.
 	if ( ! is_array( $pmpro_themes ) ) {
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			error_log( 'There was a problem retrieving PMPro Themes update data.' );
+		}
 		$pmpro_themes = array();
 	}
 
