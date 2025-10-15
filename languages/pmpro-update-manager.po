@@ -2,16 +2,16 @@
 # This file is distributed under the GPL-3.0.
 msgid ""
 msgstr ""
-"Project-Id-Version: Paid Memberships Pro - Update Manager 0.2.1\n"
+"Project-Id-Version: Paid Memberships Pro - Update Manager 0.2.2\n"
 "Report-Msgid-Bugs-To: info@paidmembershipspro.com\n"
 "Last-Translator: Paid Memberships Pro <info@paidmembershipspro.com>\n"
 "Language-Team: Paid Memberships Pro <info@paidmembershipspro.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-04-23T07:15:51+00:00\n"
+"POT-Creation-Date: 2025-10-15T07:34:51+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"X-Generator: WP-CLI 2.11.0\n"
+"X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: pmpro-update-manager\n"
 
 #. Plugin Name of the plugin
@@ -41,10 +41,27 @@ msgstr ""
 
 #. translators: %s is the license type
 #: includes/addons.php:142
+#, php-format
 msgid "Important: This plugin requires a valid PMPro %s license key to update."
 msgstr ""
 
 #. Description of the plugin
 #: pmpro-update-manager.php
 msgid "Manage downloads and updates for all official Paid Memberships Pro Add Ons, themes, and translation files."
+msgstr ""
+
+#: pmpro-update-manager.php:241
+msgid "View Documentation"
+msgstr ""
+
+#: pmpro-update-manager.php:241
+msgid "Docs"
+msgstr ""
+
+#: pmpro-update-manager.php:242
+msgid "Visit Customer Support Forum"
+msgstr ""
+
+#: pmpro-update-manager.php:242
+msgid "Support"
 msgstr ""
