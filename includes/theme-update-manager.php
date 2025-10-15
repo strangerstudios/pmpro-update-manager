@@ -32,7 +32,7 @@ function pmproum_get_themes() {
 		 * @param int $timeout The number of seconds before the request times out
 		 */
 		$timeout = apply_filters( 'pmproum_get_themes_timeout', 5 );
-		$remote_info = wp_remote_get( PMPRO_LICENSE_SERVER . 'themes111/', $timeout );
+		$remote_info = wp_remote_get( PMPRO_LICENSE_SERVER . 'themes/', $timeout );
 
 		// make sure we have at least an array to pass back
 		if ( empty( $remote_info ) ) {
