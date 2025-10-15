@@ -14,35 +14,46 @@ add_action( 'admin_init', 'pmproum_theme_setup_update_info', 99 );
  * Get theme update information from the PMPro server.
  * @since  0.2
  */
-function pmproum_get_themes() {
+function pmproum_get_themes() {	
 	// Check if forcing a pull from the server.
-	$update_info = get_option( 'pmproum_theme_update_info', false );
+	$update_info = get_option( 'pmproum_theme_update_info', array() );
 	$update_info_timestamp = get_option( 'pmproum_theme_update_info_timestamp', 0 );
 
 	// Query the server if we do not have the local $update_info or we force checking for an update.
 	if ( empty( $update_info ) || ! empty( $_REQUEST['force-check'] ) || current_time('timestamp') > $update_info_timestamp + 86400 ) {
-        /**
-         * Filter to change the timeout for this wp_remote_get() request for updates.
-         * @since 0.2
-         * @param int $timeout The number of seconds before the request times out
-         */
-        $timeout = apply_filters( 'pmproum_get_themes_timeout', 5 );
-        $remote_info = wp_remote_get( PMPRO_LICENSE_SERVER . 'themes/', $timeout );
+		/**
+		 * Filter to change the timeout for this wp_remote_get() request for updates.
+		 * @since 0.2
+		 * @param int $timeout The number of seconds before the request times out
+		 */
+		$timeout = apply_filters( 'pmproum_get_themes_timeout', 5 );
+		$remote_info = wp_remote_get( PMPRO_LICENSE_SERVER . 'themes/', $timeout );
+
+		// make sure we have at least an array to pass back
+		if ( empty( $remote_info ) ) {
+			$update_info = array();
+		}
 
 		// Test response.
-        if ( is_wp_error( $remote_info ) || empty( $remote_info['response'] ) || $remote_info['response']['code'] != '200' ) {
-			// Error.
-			return new WP_Error( 'connection_error', 'Could not connect to the PMPro License Server to get update information. Try again later.' );
+		if ( is_wp_error( $remote_info ) || ! isset( $remote_info['response'] ) || empty( $remote_info['response'] ) || $remote_info['response']['code'] != 200 ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				$error_response = is_array( $remote_info ) && isset( $remote_info['response'] ) ? print_r( $remote_info['response'], true ) : 'No response data';
+				error_log( 'PMPro Update Manager: Error retrieving theme update information from the PMPro license server. Response: ' . $error_response );
+			}
 		} else {
 			// Update update_infos in cache.
 			$update_info = json_decode( wp_remote_retrieve_body( $remote_info ), true );
-			delete_option( 'pmproum_theme_update_info' );
-			add_option( 'pmproum_theme_update_info', $update_info, NULL, 'no' );
+			
+			// If the data isn't an array, bail.
+			if ( empty( $update_info ) || ! is_array( $update_info ) ) {
+				return array();
+			}
+
 		}
 
 		// Save timestamp of last update
-		delete_option( 'pmproum_theme_update_info_timestamp' );
-		add_option( 'pmproum_theme_update_info_timestamp', current_time('timestamp'), NULL, 'no' );
+		update_option( 'pmproum_theme_update_info', $update_info, false );
+		update_option( 'pmproum_theme_update_info_timestamp', current_time( 'timestamp' ), false);
 	}
 
 	return $update_info;
