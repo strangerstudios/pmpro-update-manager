@@ -20,7 +20,7 @@ class PMProUM_AddOns {
 	 *
 	 * @var PMProUM_AddOns
 	 * @access protected
-	 * @since TBD
+	 * @since 3.6
 	 */
 	protected static $instance = null;
 
@@ -35,7 +35,7 @@ class PMProUM_AddOns {
 	/**
 	 * Timestamp of last Add Ons check.
 	 *
-	 * @since TBD
+	 * @since 3.6
 	 * @var int
 	 */
 	public $addons_timestamp = 0;
@@ -43,7 +43,7 @@ class PMProUM_AddOns {
 	/**
 	 * Cache of plugin information to reduce calls to get_plugins().
 	 *
-	 * @since TBD
+	 * @since 3.6
 	 * @var array|null
 	 */
 	private $cached_plugins = null;
@@ -52,14 +52,14 @@ class PMProUM_AddOns {
 		$this->addons           = get_option( 'pmpro_addons', array() );
 		$this->addons_timestamp = get_option( 'pmpro_addons_timestamp', false );
 
-		add_action( 'admin_init', array( $this, 'admin_hooks' ) );
+		add_action( 'admin_init', array( $this, 'admin_hooks' ), 0 ); // Priority 0 to run before other admin_init hooks.
 	}
 
 	/**
 	 * Get the single instance of the class.
 	 *
 	 * @access public
-	 * @since TBD
+	 * @since 3.6
 	 * @return PMProUM_AddOns
 	 */
 	public static function instance() {
@@ -73,24 +73,24 @@ class PMProUM_AddOns {
 	 * Prevent the instance from being cloned.
 	 *
 	 * @access public
-	 * @since TBD
+	 * @since 3.6
 	 * @return void
 	 * @throws Exception If the instance is cloned.
 	 */
 	public function __clone() {
-		throw new Exception( __( 'PMPro_AddOns instance cannot be cloned', 'paid-memberships-pro' ) );
+		throw new Exception( esc_html__( 'PMProUM_AddOns instance cannot be cloned', 'paid-memberships-pro' ) );
 	}
 
 	/**
 	 * Prevent the instance from being unserialized.
 	 *
 	 * @access public
-	 * @since TBD
+	 * @since 3.6
 	 * @return void
 	 * @throws Exception If the instance is unserialized.
 	 */
 	public function __wakeup() {
-		throw new Exception( __( 'PMPro_AddOns instance cannot be unserialized', 'paid-memberships-pro' ) );
+		throw new Exception( esc_html__( 'PMProUM_AddOns instance cannot be unserialized', 'paid-memberships-pro' ) );
 	}
 
 	/**
@@ -257,7 +257,7 @@ class PMProUM_AddOns {
 	 * @return array $incorrect_folder_names An array of Add Ons with incorrect folder names. The key is the installed folder name, the value is the Add On data.
 	 */
 	public function get_add_ons_with_incorrect_folder_names() {
-		// Make an easily searchable array of installed plugins to reduce computational compexity.
+		// Make an easily searchable array of installed plugins to reduce computational complexity.
 		// The key of the array is the plugin filename, the value is the folder name.
 		$installed_plugins = array();
 
@@ -284,7 +284,7 @@ class PMProUM_AddOns {
 
 			// Check if the Add On is installed with an incorrect folder name.
 			if ( array_key_exists( $addon_filename, $installed_plugins ) && $addon_folder !== $installed_plugins[ $addon_filename ] ) {
-				// The Add On is installed with the wrong folder nane. Add it to the array.
+				// The Add On is installed with the wrong folder name. Add it to the array.
 				$installed_name                            = $installed_plugins[ $addon_filename ] . '/' . $addon_filename;
 				$incorrect_folder_names[ $installed_name ] = $addon;
 			}
@@ -378,7 +378,7 @@ class PMProUM_AddOns {
 	 * @param bool $force_check Whether to force a check for new addons.
 	 *
 	 * @return array
-	 * @since TBD
+	 * @since 3.6
 	 */
 	public function get_addons( $force_check = false ) {
 		$addons           = $this->addons;
@@ -410,7 +410,7 @@ class PMProUM_AddOns {
 			return new WP_Error( 'pmpro_addon_install_invalid_slug', __( 'Invalid Add On slug.', 'paid-memberships-pro' ) );
 		}
 
-		if ( ! current_user_can( 'install_plugins' ) || ( is_multisite() && ! current_user_can( 'manage_network_plugins' ) && is_network_admin() ) ) {
+		if ( ! current_user_can( 'install_plugins' ) ) {
 			return new WP_Error( 'pmpro_addon_install_cap', __( 'You do not have permission to install plugins.', 'paid-memberships-pro' ) );
 		}
 
@@ -463,21 +463,15 @@ class PMProUM_AddOns {
 	 * @since 3.2.0
 	 *
 	 * @param string $slug_or_plugin Slug (folder) or plugin file (folder/file.php).
-	 * @param bool   $network_wide   Activate network wide when in multisite/network admin.
 	 * @return array|WP_Error Result array or WP_Error.
 	 */
-	public function activate( $slug_or_plugin = '', $network_wide = false ) {
+	public function activate( $slug_or_plugin = '' ) {
 		require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		if ( empty( $slug_or_plugin ) ) {
 			return new WP_Error( 'pmpro_addon_activate_invalid', __( 'Invalid Add On.', 'paid-memberships-pro' ) );
 		}
 
-		if ( is_network_admin() ) {
-			if ( ! current_user_can( 'manage_network_plugins' ) ) {
-				return new WP_Error( 'pmpro_addon_activate_cap', __( 'You do not have permission to activate plugins network-wide.', 'paid-memberships-pro' ) );
-			}
-			$network_wide = true;
-		} elseif ( ! current_user_can( 'activate_plugins' ) ) {
+		if ( ! current_user_can( 'activate_plugins' ) ) {
 				return new WP_Error( 'pmpro_addon_activate_cap', __( 'You do not have permission to activate plugins.', 'paid-memberships-pro' ) );
 		}
 
@@ -495,7 +489,7 @@ class PMProUM_AddOns {
 			);
 		}
 
-		$activate = activate_plugin( $plugin_file, '', $network_wide );
+		$activate = activate_plugin( $plugin_file, '', false );
 		if ( is_wp_error( $activate ) ) {
 			return $activate;
 		}
@@ -514,21 +508,15 @@ class PMProUM_AddOns {
 	 * @since 3.2.0
 	 *
 	 * @param string $slug_or_plugin Slug (folder) or plugin file (folder/file.php).
-	 * @param bool   $network_wide   Deactivate network wide when in multisite/network admin.
 	 * @return array|WP_Error Result array or WP_Error.
 	 */
-	public function deactivate( $slug_or_plugin = '', $network_wide = false ) {
+	public function deactivate( $slug_or_plugin = '' ) {
 		require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		if ( empty( $slug_or_plugin ) ) {
 			return new WP_Error( 'pmpro_addon_deactivate_invalid', __( 'Invalid Add On.', 'paid-memberships-pro' ) );
 		}
 
-		if ( is_network_admin() ) {
-			if ( ! current_user_can( 'manage_network_plugins' ) ) {
-				return new WP_Error( 'pmpro_addon_deactivate_cap', __( 'You do not have permission to deactivate plugins network-wide.', 'paid-memberships-pro' ) );
-			}
-			$network_wide = true;
-		} elseif ( ! current_user_can( 'activate_plugins' ) ) {
+		if ( ! current_user_can( 'activate_plugins' ) ) {
 				return new WP_Error( 'pmpro_addon_deactivate_cap', __( 'You do not have permission to deactivate plugins.', 'paid-memberships-pro' ) );
 		}
 
@@ -546,7 +534,7 @@ class PMProUM_AddOns {
 			);
 		}
 
-		deactivate_plugins( array( $plugin_file ), false, $network_wide );
+		deactivate_plugins( array( $plugin_file ), false, false );
 		if ( is_plugin_active( $plugin_file ) ) {
 			return new WP_Error( 'pmpro_addon_deactivate_failed', __( 'Deactivation failed.', 'paid-memberships-pro' ) );
 		}
@@ -562,7 +550,7 @@ class PMProUM_AddOns {
 	/**
 	 * Update an Add On.
 	 *
-	 * @since TBD
+	 * @since 3.6
 	 *
 	 * @param string $slug_or_plugin Slug (folder) or plugin file (folder/file.php).
 	 * @return array|WP_Error Result array or WP_Error.
@@ -648,7 +636,7 @@ class PMProUM_AddOns {
 	/**
 	 * Refresh the core plugin update data and PMPro add-on responses.
 	 *
-	 * @since TBD
+	 * @since 3.6
 	 * @return void
 	 */
 	private function refresh_update_data() {
@@ -664,13 +652,12 @@ class PMProUM_AddOns {
 	/**
 	 * Delete (uninstall) an Add On.
 	 *
-	 * @since TBD
+	 * @since 3.6
 	 *
 	 * @param string $slug_or_plugin Slug (folder) or plugin file (folder/file.php).
-	 * @param bool   $network_wide   If true in multisite, will deactivate network-wide before deleting.
 	 * @return array|WP_Error Result array or WP_Error.
 	 */
-	public function delete( $slug_or_plugin = '', $network_wide = false ) {
+	public function delete( $slug_or_plugin = '' ) {
 		require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		if ( empty( $slug_or_plugin ) ) {
 			return new WP_Error( 'pmpro_addon_delete_invalid', __( 'Invalid Add On.', 'paid-memberships-pro' ) );
@@ -687,7 +674,7 @@ class PMProUM_AddOns {
 
 		// Deactivate before deleting.
 		if ( is_plugin_active( $plugin_file ) ) {
-			deactivate_plugins( array( $plugin_file ), false, $network_wide );
+			deactivate_plugins( array( $plugin_file ), false, false );
 		}
 
 		$fs_ready = $this->ensure_filesystem();
@@ -716,7 +703,7 @@ class PMProUM_AddOns {
 	 * Attempt to initialize the WordPress filesystem API for upgrader operations.
 	 * Returns WP_Error when credentials are required and not provided.
 	 *
-	 * @since TBD
+	 * @since 3.6
 	 *
 	 * @return true|WP_Error
 	 */
@@ -733,7 +720,7 @@ class PMProUM_AddOns {
 	/**
 	 * Get a quiet upgrader skin to capture output nicely for programmatic use.
 	 *
-	 * @since TBD
+	 * @since 3.6
 	 *
 	 * @return Automatic_Upgrader_Skin
 	 */
@@ -752,7 +739,7 @@ class PMProUM_AddOns {
 	/**
 	 * Resolve plugin file (folder/file.php) from a slug or plugin identifier.
 	 *
-	 * @since TBD
+	 * @since 3.6
 	 *
 	 * @param string $slug_or_plugin Slug or plugin file.
 	 * @return string|WP_Error Plugin file or WP_Error if not found.
@@ -785,7 +772,7 @@ class PMProUM_AddOns {
 	/**
 	 * Maybe extract a slug from a slug or plugin file string.
 	 *
-	 * @since TBD
+	 * @since 3.6
 	 *
 	 * @param string $slug_or_plugin Input string.
 	 * @return string Slug or empty string if not detected.
@@ -802,7 +789,7 @@ class PMProUM_AddOns {
 	/**
 	 * Get the download/package URL for an Add On by slug.
 	 *
-	 * @since TBD
+	 * @since 3.6
 	 *
 	 * @param string $slug The Add On slug.
 	 * @return string|WP_Error Package URL or WP_Error.
@@ -823,7 +810,7 @@ class PMProUM_AddOns {
 	/**
 	 * Register AJAX endpoints for add-on operations.
 	 *
-	 * @since TBD
+	 * @since 3.6
 	 */
 	public function register_ajax_endpoints() {
 		add_action( 'wp_ajax_pmpro_addon_install', array( $this, 'ajax_install_addon' ) );
@@ -836,7 +823,7 @@ class PMProUM_AddOns {
 	/**
 	 * AJAX: Install.
 	 *
-	 * @since TBD
+	 * @since 3.6
 	 * @return void
 	 */
 	public function ajax_install_addon() {
@@ -849,7 +836,7 @@ class PMProUM_AddOns {
 	/**
 	 * AJAX: Update Add On
 	 *
-	 * @since TBD
+	 * @since 3.6
 	 *
 	 * @return void
 	 */
@@ -863,52 +850,49 @@ class PMProUM_AddOns {
 	/**
 	 * AJAX: Activate Add On
 	 *
-	 * @since TBD
+	 * @since 3.6
 	 *
 	 * @return void
 	 */
 	public function ajax_activate_addon() {
 		check_ajax_referer( 'pmpro_addons_actions', 'nonce' );
-		$target       = isset( $_POST['target'] ) ? sanitize_text_field( wp_unslash( $_POST['target'] ) ) : '';
-		$network_wide = ! empty( $_POST['network_wide'] );
-		$result       = $this->activate( $target, $network_wide );
+		$target = isset( $_POST['target'] ) ? sanitize_text_field( wp_unslash( $_POST['target'] ) ) : '';
+		$result = $this->activate( $target );
 		$this->send_ajax_result( $result );
 	}
 
 	/**
 	 * AJAX: Deactivate Add On
 	 *
-	 * @since TBD
+	 * @since 3.6
 	 *
 	 * @return void
 	 */
 	public function ajax_deactivate_addon() {
 		check_ajax_referer( 'pmpro_addons_actions', 'nonce' );
-		$target       = isset( $_POST['target'] ) ? sanitize_text_field( wp_unslash( $_POST['target'] ) ) : '';
-		$network_wide = ! empty( $_POST['network_wide'] );
-		$result       = $this->deactivate( $target, $network_wide );
+		$target = isset( $_POST['target'] ) ? sanitize_text_field( wp_unslash( $_POST['target'] ) ) : '';
+		$result = $this->deactivate( $target );
 		$this->send_ajax_result( $result );
 	}
 
 	/**
 	 * AJAX: Delete Add On
 	 *
-	 * @since TBD
+	 * @since 3.6
 	 *
 	 * @return void
 	 */
 	public function ajax_delete_addon() {
 		check_ajax_referer( 'pmpro_addons_actions', 'nonce' );
-		$target       = isset( $_POST['target'] ) ? sanitize_text_field( wp_unslash( $_POST['target'] ) ) : '';
-		$network_wide = ! empty( $_POST['network_wide'] );
-		$result       = $this->delete( $target, $network_wide );
+		$target = isset( $_POST['target'] ) ? sanitize_text_field( wp_unslash( $_POST['target'] ) ) : '';
+		$result = $this->delete( $target );
 		$this->send_ajax_result( $result );
 	}
 
 	/**
 	 * Helper to send standardized AJAX responses.
 	 *
-	 * @since TBD
+	 * @since 3.6
 	 *
 	 * @param array|WP_Error $result Operation result.
 	 */
@@ -1049,12 +1033,12 @@ class PMProUM_AddOns {
 					ucwords( $addon['License'] )
 				);
 
-				$html  = '<div class="wrap"><h2>' . esc_html__( 'Update Plugin' ) . '</h2>';
+				$html  = '<div class="wrap"><h2>' . esc_html__( 'Update Plugin', 'paid-memberships-pro' ) . '</h2>';
 				$html .= '<div class="error"><p>' . wp_kses_post( $msg ) . '</p></div>';
 				$html .= '<p><a href="' . esc_url( admin_url( 'admin.php?page=pmpro-addons' ) ) . '" target="_parent">' . esc_html__( 'Return to the PMPro Add Ons page', 'paid-memberships-pro' ) . '</a></p>';
 				$html .= '</div>';
 
-				echo $html;
+				echo wp_kses_post( $html );
 
 				include ABSPATH . 'wp-admin/admin-footer.php';
 
@@ -1117,7 +1101,7 @@ class PMProUM_AddOns {
 	 * Get remote addons from the License Server.
 	 *
 	 * @return array
-	 * @since TBD
+	 * @since 3.6
 	 */
 	private function get_remote_addons() {
 
@@ -1139,7 +1123,7 @@ class PMProUM_AddOns {
 		if ( is_wp_error( $remote_addons ) ) {
 			pmpro_setMessage( 'Could not connect to the PMPro License Server to update addon information. Try again later.', 'error' );
 			// Return cached addons if available
-      		return $this->addons ? : array();
+			return $this->addons ? : array();
 		} elseif ( ! empty( $remote_addons ) && $remote_addons['response']['code'] == 200 ) {
 
 			// Update the timestamp
@@ -1231,7 +1215,7 @@ class PMProUM_AddOns {
 	/**
 	 * Get installed plugins with caching.
 	 *
-	 * @since TBD
+	 * @since 3.6
 	 *
 	 * @return array Installed plugins.
 	 */
