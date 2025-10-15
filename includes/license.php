@@ -23,7 +23,9 @@
 /*
 	Constants
 */
-define('PMPRO_LICENSE_SERVER', 'https://license.paidmembershipspro.com/v2/');
+if ( ! defined( 'PMPRO_LICENSE_SERVER' ) ) {
+	define( 'PMPRO_LICENSE_SERVER', 'https://license.paidmembershipspro.com/v2/' );
+}
 
 if ( ! function_exists( 'pmpro_license_type_is_premium' ) ) {
     /**
