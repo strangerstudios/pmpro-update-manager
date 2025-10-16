@@ -1,12 +1,7 @@
 <?php
 
 // This is a renamed copy of the PMPro_AddOns class from Paid Memberships Pro.
-
-// One change that needs to be made when updating this file is commenting out the following line in update_plugins_filter():
-// $value->response[ $plugin_file ]->icons       = array( 'default' => esc_url( $this->get_addon_icon( $addon['Slug'] ) ) );
-
-// The hook for `update_plugins_filter` should also be set to priority 9 so it runs before the PMPro_AddOns version at priority 10.
-// The PMPro version can set Add On images, but this class does not have access to images. Let core PMPro override this one.
+// When updating, PMPro_AddOns should be replaced with PMProUM_AddOns.
 
 defined( 'ABSPATH' ) || die( 'File cannot be accessed directly' );
 
@@ -99,7 +94,7 @@ class PMProUM_AddOns {
 	public function admin_hooks() {
 		$this->check_when_updating_plugins();
 		add_filter( 'plugins_api', array( $this, 'plugins_api' ), 10, 3 );
-		add_filter( 'pre_set_site_transient_update_plugins', array( $this, 'update_plugins_filter' ), 9 );
+		add_filter( 'pre_set_site_transient_update_plugins', array( $this, 'update_plugins_filter' ) );
 		add_filter( 'http_request_args', array( $this, 'http_request_args_for_addons' ), 10, 2 );
 		add_action( 'update_option_pmpro_license_key', array( $this, 'reset_update_plugins_cache' ), 10, 2 );
 		// Register AJAX endpoints for add-on actions.
@@ -362,7 +357,12 @@ class PMProUM_AddOns {
 			if ( version_compare( $plugin_data['Version'], $addon['Version'], '<' ) ) {
 				$value->response[ $plugin_file ]              = $this->get_plugin_API_object_from_addon( $addon );
 				$value->response[ $plugin_file ]->new_version = $addon['Version'];
-				//$value->response[ $plugin_file ]->icons       = array( 'default' => esc_url( $this->get_addon_icon( $addon['Slug'] ) ) );
+
+				// If we have an icon to show, add it to the response. Otherwise let it show the default icon.
+				$icon = $this->get_addon_icon( $addon['Slug'] );
+				if ( ! empty( $icon ) ) {
+					$value->response[ $plugin_file ]->icons = array( 'default' => esc_url( $icon ) );
+				}
 			} else {
 				$value->no_update[ $plugin_file ] = $this->get_plugin_API_object_from_addon( $addon );
 			}
@@ -915,9 +915,14 @@ class PMProUM_AddOns {
 	 * @since 2.8.x
 	 *
 	 * @param string $slug The identifying slug for the addon (typically the directory name).
-	 * @return string $plugin_icon_src The src URL for the plugin icon.
+	 * @return string|false $plugin_icon_src The src URL for the plugin icon or false if PMPRO_DIR is not defined.
 	 */
 	public function get_addon_icon( $slug ) {
+		// If PMPRO_DIR is not defined, bail. This may happen in the Update Manager Add On.
+		if ( ! defined( 'PMPRO_DIR' ) ) {
+			return false;
+		}
+
 		if ( file_exists( PMPRO_DIR . '/images/add-ons/' . $slug . '.png' ) ) {
 			$plugin_icon_src = PMPRO_URL . '/images/add-ons/' . $slug . '.png';
 		} else {
