@@ -6,11 +6,6 @@
  * @since 0.2
 */
 function pmproum_theme_setup_update_info() {
-
-	if ( ! defined( 'PMPRO_LICENSE_SERVER' ) ) {
-		define('PMPRO_LICENSE_SERVER', 'https://license.paidmembershipspro.com/v2/' );
-	}
-
 	add_filter( 'pre_set_site_transient_update_themes', 'pmproum_update_themes_filter' );
 }
 add_action( 'admin_init', 'pmproum_theme_setup_update_info', 99 );
