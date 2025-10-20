@@ -3,7 +3,7 @@
  * Plugin Name: Paid Memberships Pro - Update Manager
  * Plugin URI: https://www.paidmembershipspro.com/add-ons/update-manager/
  * Description: Manage downloads and updates for all official Paid Memberships Pro Add Ons, themes, and translation files.
- * Version: 0.2.2
+ * Version: 1.0
  * Author: Paid Memberships Pro
  * Author URI: https://www.paidmembershipspro.com
  * Text Domain: pmpro-update-manager
@@ -14,7 +14,7 @@
 define( 'PMPROUM_BASE_FILE', __FILE__ );
 define( 'PMPROUM_BASENAME', plugin_basename( __FILE__ ) );
 define( 'PMPROUM_DIR', dirname( __FILE__ ) );
-define( 'PMPROUM_VERSION', '0.2.2' );
+define( 'PMPROUM_VERSION', '1.0' );
 
 // Includes
 require_once( PMPROUM_DIR . '/includes/theme-update-manager.php' );
